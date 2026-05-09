@@ -30,31 +30,36 @@ st.html('''
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-PI</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-AM</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-CE</td>
-    <td style="border: 1px solid #ccc; padding: 8px;">TCE-SC</td>
   </tr>
   <tr>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-RO</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-PB</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-MS</td>
-    <td style="border: 1px solid #ccc; padding: 8px;">TCE-PR</td>
   </tr>
   <tr>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-RR</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-PE</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-MT</td>
-    <td style="border: 1px solid #ccc; padding: 8px;">TCE-MG</td>
   </tr>
   <tr>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-PA</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-RN</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-GO</td>
-    <td style="border: 1px solid #ccc; padding: 8px;">TCE-RJ</td>
   </tr>
   <tr>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-TO</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-BA</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-RS</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ccc; padding: 8px;">TCE-RJ</td>
     <td style="border: 1px solid #ccc; padding: 8px;">TCE-ES</td>
+    <td style="border: 1px solid #ccc; padding: 8px;">TC-DF</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ccc; padding: 8px;">TCE-SC</td>
+    <td style="border: 1px solid #ccc; padding: 8px;">TCE-PR</td>
+    <td style="border: 1px solid #ccc; padding: 8px;">TCE-MG</td>
   </tr>
 </table>
 ''')

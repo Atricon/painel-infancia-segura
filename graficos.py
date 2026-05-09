@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.express as px
 from import_data import *
+import textwrap
 
 # Configurando as cores
 amarelo =  "#EDC40C" # "#E1C233"
@@ -10,6 +11,7 @@ verde = "#58BDB6"
 azul = "#1C6F9D"
 sim = verde
 nao = azul
+nao_aplica = "#BBB"
 
 # Configurando tamanho dos gráficos de pizza
 width_pizza = 300
@@ -37,11 +39,27 @@ def grafico_mapa_brasil(pergunta_id, df_entidades_levantamentos, title=None):
         df_entidades_levantamentos, filtro_pergunta, left_on="id_x", right_on="resposta_levantamento_id", how="left"
         )[['uf', 'boolean_answer']]
 
-    df_resposta["boolean_answer"] = df_resposta["boolean_answer"].replace({
-        True: "Sim",
-        False: "Não",
-        None: "Não Respondeu"  # Alternativa para valores nulos (None ou NaN)
-    })
+    df_resposta["resposta_label"] = (
+        df_resposta["boolean_answer"]
+        .astype(str)
+        .replace({
+            "True": "Sim",
+            "False": "Não",
+            "true": "Sim",
+            "false": "Não",
+            "nao_aplica": "Não se aplica",
+            "nan": "Não Respondeu"
+        })
+    )
+
+    st.markdown(
+        f"""
+        <h3 style='font-size:16px;'>
+            {title}
+        </h3>
+        """,
+        unsafe_allow_html=True
+    )
 
     # Gerar o mapa com Plotly Express
     fig_mapa = px.choropleth(
@@ -49,21 +67,22 @@ def grafico_mapa_brasil(pergunta_id, df_entidades_levantamentos, title=None):
         geojson=geojson_url,
         locations="uf",
         featureidkey="properties.sigla",  # Códigos ISO no GeoJSON
-        color="boolean_answer",
-        color_discrete_map={"Sim": sim, "Não": nao, "Não Respondeu": cinza} ,
-        labels={"boolean_answer": "Resposta", "uf": "UF"},
-        title=title,
+        color="resposta_label",
+        color_discrete_map={"Sim": sim, "Não": nao, "Não Respondeu": cinza, "Não se aplica": nao_aplica} ,
+        labels={"resposta_label": "Resposta", "uf": "UF"},
         hover_name="uf",
     )
 
     fig_mapa.update_geos(
         fitbounds="locations",
-        visible=False
+        visible=False,
+        resolution=50
     )
 
     fig_mapa.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",  # Fundo do gráfico
-        geo=dict(bgcolor="rgba(0,0,0,0)"),  # Fundo do mapa
+        height=800,
+        paper_bgcolor="rgba(0,0,0,0)",
+        geo=dict(bgcolor="rgba(0,0,0,0)")
     )
 
     return fig_mapa
@@ -79,24 +98,51 @@ def grafico_pizza(pergunta_id, df_entidades_levantamentos, title=None, hole=None
         df_entidades_levantamentos, filtro_pergunta, left_on="id_x", right_on="resposta_levantamento_id", how="inner"
     )
 
+    dados = {
+        'Sim': (
+            (df_resposta['boolean_answer'] == True) |
+            (df_resposta['boolean_answer'] == "true")
+        ).sum(),
+
+        'Não': (
+            (df_resposta['boolean_answer'] == False) |
+            (df_resposta['boolean_answer'] == "false")
+        ).sum(),
+
+        'Não se aplica': (
+            df_resposta['boolean_answer'] == "nao_aplica"
+        ).sum(),
+    }
+
+    # Remove categorias zeradas
+    dados = {k: v for k, v in dados.items() if v > 0}
+
     pie_data = pd.DataFrame({
-        'Resposta': ['Sim', 'Não'],
-        'Quantidade': [df_resposta[(df_resposta['boolean_answer']==True)]['boolean_answer'].count(), df_resposta[(df_resposta['boolean_answer']==False)]['boolean_answer'].count()]
+        'Resposta': list(dados.keys()),
+        'Quantidade': list(dados.values())
     })
+
+    st.markdown(
+        f"""
+        <h3 style='font-size:16px;'>
+            {title}
+        </h3>
+        """,
+        unsafe_allow_html=True
+    )
 
     fig_resposta = px.pie(
         pie_data, 
         values='Quantidade', 
         names='Resposta',
         color='Resposta',
-        title=title,
-        color_discrete_map={'Sim': sim, 'Não': nao},
+        color_discrete_map={'Sim': sim, 'Não': nao, 'Não se aplica': nao_aplica},
         hole=hole
     )
     fig_resposta.update_traces(textposition='inside', textinfo='percent+value')
     fig_resposta.update_layout(
         width=width_pizza,  # Largura em pixels
-        height=height_pizza  # Altura em pixels
+        height=height_pizza,  # Altura em pixels
     )
 
     return fig_resposta
@@ -131,12 +177,20 @@ def grafico_pizza_com_legenda(pergunta_id, df_entidades_levantamentos, title=Non
         'Quantidade': count_df_resposta['total']
     })
 
+    st.markdown(
+        f"""
+        <h3 style='font-size:16px;'>
+            {title}
+        </h3>
+        """,
+        unsafe_allow_html=True
+    )
+
     fig_resposta = px.pie(
         pie_data, 
         values='Quantidade', 
         names='Resposta',
         color='Resposta',
-        title=title,
         color_discrete_map={"ALTO RISCO": sim, "MÉDIO RISCO": nao, "BAIXO RISCO": cinza} ,
         hole=hole
     )
@@ -177,6 +231,15 @@ def grafico_barra_horizontal(pergunta_id, df_entidades_levantamentos, title=None
     # Ordenar os dados pelo total
     count_df_resposta = count_df_resposta.sort_values('total', ascending=True)
 
+    st.markdown(
+        f"""
+        <h3 style='font-size:16px;'>
+            {title}
+        </h3>
+        """,
+        unsafe_allow_html=True
+    )
+
     # Criar gráfico de barras horizontais com Plotly
     fig_resposta = px.bar(
         count_df_resposta,
@@ -184,7 +247,6 @@ def grafico_barra_horizontal(pergunta_id, df_entidades_levantamentos, title=None
         y='texto_quebrado',
         orientation='h',
         text='total',
-        title=title,
         color_discrete_sequence=[nao, sim],
         range_x=[0, 20],
         height=height
